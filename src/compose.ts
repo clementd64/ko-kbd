@@ -17,9 +17,10 @@ export function isStateValid(state: string): boolean {
     case 0:
       return true;
     case 1:
-      return isSyllable(state) || isAlpha(state);
+      return isSyllable(state) || isInitalCompatibilityJamo(state) || isAlpha(state);
     case 2:
-      return isSyllable(state[0]) && isAlpha(state[1]);
+      return (isInitalCompatibilityJamo(state[0]) && isAlpha(state[1])) ||
+        (isSyllable(state[0]) && (isAlpha(state[1]) || isInitalCompatibilityJamo(state[1])));
   }
   return false;
 }
@@ -210,6 +211,6 @@ function composeFinal(a: number, b: number): number|null {
   return null;
 }
 
-function isAlpha(ch: string): boolean {
+export function isAlpha(ch: string): boolean {
   return (ch >= 'a' && ch <= 'z') || (ch >= 'A' && ch <= 'Z');
 }

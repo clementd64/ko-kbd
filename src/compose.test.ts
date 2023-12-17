@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'vitest';
 
-import { append, SelectionState } from './compose.ts';
+import { append, isStateValid, SelectionState } from './compose.ts';
 
 import { $, INITIALS, MEDIALS, FINALS } from './compose.const.ts';
 import { COMPOSED_FINAL, NO_INITIAL } from './hangul.ts';
@@ -65,6 +65,13 @@ describe('Append', () => {
     const result = append(state, input);
     expect(result.value).toBe(expected);
     expect(result.select).toBe(select);
+  });
+});
+
+// TODO: better test
+describe('isStateValid', () => {
+  test.each(APPEND_TEST_CASES)('$state', ({ state }) => {
+    expect(isStateValid(state)).toBe(true);
   });
 });
 
