@@ -1,5 +1,5 @@
 import { composeSyllable, isSyllable, COMPOSED_FINAL, NO_INITIAL, decomposeSyllable, isInitalCompatibilityJamo } from './hangul.ts';
-import { $, INITIALS, MEDIALS, FINAL_TO_INITIAL } from './compose.const.ts';
+import { $, INITIALS, MEDIALS, FINALS, FINAL_TO_INITIAL } from './compose.const.ts';
 
 export const enum SelectionState {
   None,
@@ -22,6 +22,17 @@ export function isStateValid(state: string): boolean {
       return isSyllable(state[0]) && isAlpha(state[1]);
   }
   return false;
+}
+
+function appendInitial(state: string, initial: number): ComposeResult {
+  return {
+    value: state + composeSyllable({
+      initial: initial,
+      medial: null,
+      final: null,
+    }),
+    select: SelectionState.Last,
+  };
 }
 
 function appendMedial(state: string, medial: number): ComposeResult {
@@ -96,11 +107,52 @@ function appendMedial(state: string, medial: number): ComposeResult {
   };
 }
 
+function appendFinal(state: string, final: number): ComposeResult {
+  if (state.length > 0 && isSyllable(state[state.length - 1])) {
+    const syllable = decomposeSyllable(state[state.length - 1]);
+
+    if (syllable.final !== null) {
+      const composed = composeFinal(syllable.final, final);
+      if (composed !== null) {
+        return {
+          value: state.slice(0, -1) + composeSyllable({
+            initial: syllable.initial,
+            medial: syllable.medial,
+            final: composed,
+          }),
+          select: SelectionState.All,
+        };
+      }
+    }
+
+    if (syllable.final === null && syllable.medial !== null) {
+      return {
+        value: state.slice(0, -1) + composeSyllable({
+          initial: syllable.initial,
+          medial: syllable.medial,
+          final: final,
+        }),
+        select: SelectionState.All,
+      };
+    }
+  }
+
+  if (final in FINAL_TO_INITIAL) {
+    return appendInitial(state, FINAL_TO_INITIAL[final]);
+  }
+
+  return { value: state, select: SelectionState.All };
+}
+
 export function append(state: string, input: string): ComposeResult {
   // incomplete ASCII
   if (
     (state.length === 0 || !isAlpha(state[state.length - 1])) &&
-    (input in INITIALS && !($ in INITIALS[input]) || input in MEDIALS && !($ in MEDIALS[input]))
+    (
+      input in INITIALS && !($ in INITIALS[input]) ||
+      input in MEDIALS && !($ in MEDIALS[input]) ||
+      input in FINALS && !($ in FINALS[input])
+    )
   ) {
     return {
       value: state + input,
@@ -112,18 +164,16 @@ export function append(state: string, input: string): ComposeResult {
   if (state.length > 0 && isAlpha(state[state.length - 1])) {
     const last = state[state.length - 1];
 
-    // TODO: check composed final. Must be done first to fallback to initial
+    if (
+      state.length > 1 && isSyllable(state[state.length - 2]) &&
+      last in FINALS && input in FINALS[last] && $ in FINALS[last][input]
+    ) {
+      return appendFinal(state.slice(0, -1), FINALS[last][input][$]!);
+    }
 
     // is inital composed
     if (last in INITIALS && input in INITIALS[last] && $ in INITIALS[last][input]) {
-      return {
-        value: state.slice(0, -1) + composeSyllable({
-          initial: INITIALS[last][input][$]!,
-          medial: null,
-          final: null,
-        }),
-        select: SelectionState.Last,
-      };
+      return appendInitial(state.slice(0, -1), INITIALS[last][input][$]!);
     }
 
     // if medial composed
@@ -134,26 +184,30 @@ export function append(state: string, input: string): ComposeResult {
     return { value: state, select: SelectionState.All };
   }
 
+  if (input in FINALS) {
+    return appendFinal(state, FINALS[input][$]!);
+  }
+
+  if (input in INITIALS) {
+    return appendInitial(state, INITIALS[input][$]!);
+  }
+
   if (input in MEDIALS) {
     return appendMedial(state, MEDIALS[input][$]!);
   }
 
-  // state is empty, start new syllable
-  if (state.length === 0) {
-    // initial
-    if (input in INITIALS) {
-      return {
-        value: composeSyllable({
-          initial: INITIALS[input][$]!, // must exist, checked above
-          medial: null,
-          final: null,
-        }),
-        select: SelectionState.All,
-      };
+  return { value: state, select: SelectionState.All };
+}
+
+function composeFinal(a: number, b: number): number|null {
+  for (const id of COMPOSED_FINAL.keys()) {
+    const [x, y] = COMPOSED_FINAL.get(id)!;
+    if (a === x && b === y) {
+      return id;
     }
   }
 
-  return { value: state, select: SelectionState.All };
+  return null;
 }
 
 function isAlpha(ch: string): boolean {

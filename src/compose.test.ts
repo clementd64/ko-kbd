@@ -2,13 +2,13 @@ import { describe, expect, test } from 'vitest';
 
 import { append, SelectionState } from './compose.ts';
 
-import { $, INITIALS, MEDIALS } from './compose.const.ts';
-import { decomposeSyllable, NO_INITIAL } from './hangul.ts';
+import { $, INITIALS, MEDIALS, FINALS } from './compose.const.ts';
+import { COMPOSED_FINAL, NO_INITIAL } from './hangul.ts';
 
 const APPEND_TEST_CASES = [
   // initial
-  { state: '', input: 'g', expected: 'ㄱ', select: SelectionState.All },
-  { state: '', input: 'G', expected: 'ㄲ', select: SelectionState.All },
+  { state: '', input: 'g', expected: 'ㄱ', select: SelectionState.Last },
+  { state: '', input: 'G', expected: 'ㄲ', select: SelectionState.Last },
   { state: '', input: 'a', expected: '아', select: SelectionState.Last },
   { state: '', input: 'z', expected: '', select: SelectionState.All }, // invalid input
   // multiple characters
@@ -86,7 +86,7 @@ describe('Jamo count', () => {
     expect.soft(list).toHaveLength(19);
     // no duplicates except ㄹ (r/l)
     expect.soft(new Set(list)).toHaveLength(list.length - 1);
-    expect.soft(list.filter((i) => i === decomposeSyllable('ㄹ').initial)).toHaveLength(2);
+    expect.soft(list.filter((i) => i === INITIALS.r[$])).toHaveLength(2);
     // all initial are listed
     expect
       .soft(new Set(list.concat([NO_INITIAL]))) // add ㅇ
@@ -102,7 +102,16 @@ describe('Jamo count', () => {
     expect.soft(new Set(list)).toStrictEqual(new Set(Array.from({ length: 21 }, (_, i) => i)));
   });
 
-  test.skip('finals', () => {
-    expect(0).toBe(27);
+  test('finals', () => {
+    const list = composeMapToList(FINALS);
+    // +1 for double ㄹ (r/l)
+    expect.soft(list).toHaveLength(27 - COMPOSED_FINAL.size + 1);
+    // no duplicates except ㄹ (r/l)
+    expect.soft(new Set(list)).toHaveLength(list.length - 1);
+    expect.soft(list.filter((i) => i === FINALS.r[$])).toHaveLength(2);
+    // all finals are listed
+    expect.soft(new Set(list))
+      // 0 is no final
+      .toStrictEqual(new Set(Array.from({ length: 27 }, (_, i) => i + 1).filter(v => !COMPOSED_FINAL.has(v))));
   });
 });
