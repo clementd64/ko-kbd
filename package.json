@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "test": "vitest run",
+    "test": "tsc && vitest run",
     "test:watch": "vitest watch",
     "build": "tsc && vite build",
     "preview:build": "tsc && vite build --mode preview",
