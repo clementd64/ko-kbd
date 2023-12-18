@@ -1,4 +1,4 @@
-import { isAlpha, append, SelectionState, isStateValid } from "./compose.ts";
+import { isAlpha, append, SelectionState, isStateValid } from "./append.ts";
 
 function replace(el: HTMLTextAreaElement, value: string, selection: SelectionState) {
     const start = el.selectionStart;

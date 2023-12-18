@@ -1,5 +1,5 @@
 import { composeSyllable, isSyllable, COMPOSED_FINAL, NO_INITIAL, decomposeSyllable, isInitalCompatibilityJamo } from './hangul.ts';
-import { $, INITIALS, MEDIALS, FINALS, FINAL_TO_INITIAL } from './compose.const.ts';
+import { $, INITIALS, MEDIALS, FINALS, FINAL_TO_INITIAL } from './mapping.ts';
 
 export const enum SelectionState {
   None,

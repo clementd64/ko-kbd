@@ -1,8 +1,8 @@
 import { describe, expect, test } from 'vitest';
 
-import { append, isStateValid, SelectionState } from './compose.ts';
+import { append, isStateValid, SelectionState } from './append.ts';
 
-import { $, INITIALS, MEDIALS, FINALS } from './compose.const.ts';
+import { $, INITIALS, MEDIALS, FINALS } from './mapping.ts';
 import { COMPOSED_FINAL, NO_INITIAL } from './hangul.ts';
 
 const APPEND_TEST_CASES = [
