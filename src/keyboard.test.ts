@@ -1,9 +1,33 @@
 import { describe, expect, test } from 'vitest';
 
 import { append, isStateValid, SelectionState } from './append.ts';
-
 import { $, INITIALS, MEDIALS, FINALS } from './mapping.ts';
 import { COMPOSED_FINAL, NO_INITIAL } from './hangul.ts';
+
+const VALID_STATE_TEST_CASES = [
+  { state: '', expected: true },
+  { state: '0', expected: false },
+  { state: 'a', expected: true },
+  { state: 'aa', expected: false },
+  { state: 'aㄱ', expected: false },
+  { state: 'a가', expected: false },
+  { state: 'ㄱ', expected: true },
+  { state: 'ㄱa', expected: true },
+  { state: 'ㄱㄱ', expected: false },
+  { state: '가', expected: true },
+  { state: '가a', expected: true },
+  { state: '가aa', expected: false },
+  { state: '가ㄱ', expected: true },
+  { state: '가ㄱa', expected: false },
+  { state: '가ㄱㄱ', expected: false },
+  { state: '가가', expected: false },
+];
+
+describe('State validity', () => {
+  test.each(VALID_STATE_TEST_CASES)('$state', ({ state, expected }) => {
+    expect(isStateValid(state)).toBe(expected);
+  });
+});
 
 const APPEND_TEST_CASES = [
   // initial
@@ -65,13 +89,6 @@ describe('Append', () => {
     const result = append(state, input);
     expect(result.value).toBe(expected);
     expect(result.select).toBe(select);
-  });
-});
-
-// TODO: better test
-describe('isStateValid', () => {
-  test.each(APPEND_TEST_CASES)('$state', ({ state }) => {
-    expect(isStateValid(state)).toBe(true);
   });
 });
 
