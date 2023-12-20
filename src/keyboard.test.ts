@@ -1,6 +1,8 @@
 import { describe, expect, test } from 'vitest';
 
-import { append, isStateValid, SelectionState } from './append.ts';
+import { isStateValid, SelectionState } from './common.ts';
+import { append } from './append.ts';
+import { remove } from './remove.ts';
 import { $, INITIALS, MEDIALS, FINALS } from './mapping.ts';
 import { COMPOSED_FINAL, NO_INITIAL } from './hangul.ts';
 
@@ -87,6 +89,27 @@ describe('Append', () => {
     state, input, expected, select,
   }) => {
     const result = append(state, input);
+    expect(result.value).toBe(expected);
+    expect(result.select).toBe(select);
+  });
+});
+
+const REMOVE_TEST_CASES = [
+  { state: '', expected: '', select: SelectionState.All },
+  { state: 'y', expected: '', select: SelectionState.All },
+  { state: 'ㄱ', expected: '', select: SelectionState.All },
+  { state: 'ㄱy', expected: 'ㄱ', select: SelectionState.All },
+  { state: '가y', expected: '가', select: SelectionState.All },
+  { state: '가ㄱ', expected: '가', select: SelectionState.All },
+  { state: '가', expected: 'ㄱ', select: SelectionState.All },
+  { state: '한', expected: '하', select: SelectionState.All },
+  { state: '핡', expected: '할', select: SelectionState.All },
+  { state: '항', expected: '한', select: SelectionState.All },
+];
+
+describe('Remove', () => {
+  test.each(REMOVE_TEST_CASES)('$state => $expected', ({ state, expected, select }) => {
+    const result = remove(state);
     expect(result.value).toBe(expected);
     expect(result.select).toBe(select);
   });
