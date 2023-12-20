@@ -1,4 +1,6 @@
-import { isAlpha, append, SelectionState, isStateValid } from "./append.ts";
+import { isAlpha, isStateValid, SelectionState } from "./common.ts";
+import { append } from "./append.ts";
+import { remove } from "./remove.ts";
 
 function replace(el: HTMLTextAreaElement, value: string, selection: SelectionState) {
     const start = el.selectionStart;
@@ -45,10 +47,11 @@ export function keydownListener(e: KeyboardEvent) {
         return;
     }
 
-    // delete text
-    if (e.code === "Backspace") {
+    // delete text. If state  is empty, use default behavior (delete left character)
+    if (e.code === "Backspace" && state.length > 0) {
         e.preventDefault();
-        // TODO: handle delete
+        const result = remove(state);
+        replace(target, result.value, result.select);
         return;
     }
 

@@ -1,31 +1,8 @@
 import { composeSyllable, isSyllable, COMPOSED_FINAL, NO_INITIAL, decomposeSyllable, isInitalCompatibilityJamo } from './hangul.ts';
 import { $, INITIALS, MEDIALS, FINALS, FINAL_TO_INITIAL } from './mapping.ts';
+import { isAlpha, SelectionState, Result } from './common.ts';
 
-export const enum SelectionState {
-  None,
-  All,
-  Last,
-}
-
-export type ComposeResult = {
-  value: string;
-  select: SelectionState;
-};
-
-export function isStateValid(state: string): boolean {
-  switch (state.length) {
-    case 0:
-      return true;
-    case 1:
-      return isSyllable(state) || isInitalCompatibilityJamo(state) || isAlpha(state);
-    case 2:
-      return (isInitalCompatibilityJamo(state[0]) && isAlpha(state[1])) ||
-        (isSyllable(state[0]) && (isAlpha(state[1]) || isInitalCompatibilityJamo(state[1])));
-  }
-  return false;
-}
-
-function appendInitial(state: string, initial: number): ComposeResult {
+function appendInitial(state: string, initial: number): Result {
   return {
     value: state + composeSyllable({
       initial: initial,
@@ -36,7 +13,7 @@ function appendInitial(state: string, initial: number): ComposeResult {
   };
 }
 
-function appendMedial(state: string, medial: number): ComposeResult {
+function appendMedial(state: string, medial: number): Result {
   if (isSyllable(state[0]) || isInitalCompatibilityJamo(state[0])) {
     const first = decomposeSyllable(state[0]);
 
@@ -108,7 +85,7 @@ function appendMedial(state: string, medial: number): ComposeResult {
   };
 }
 
-function appendFinal(state: string, final: number): ComposeResult {
+function appendFinal(state: string, final: number): Result {
   if (state.length > 0 && isSyllable(state[state.length - 1])) {
     const syllable = decomposeSyllable(state[state.length - 1]);
 
@@ -145,7 +122,7 @@ function appendFinal(state: string, final: number): ComposeResult {
   return { value: state, select: SelectionState.All };
 }
 
-export function append(state: string, input: string): ComposeResult {
+export function append(state: string, input: string): Result {
   // incomplete ASCII
   if (
     (state.length === 0 || !isAlpha(state[state.length - 1])) &&
@@ -209,8 +186,4 @@ function composeFinal(a: number, b: number): number|null {
   }
 
   return null;
-}
-
-export function isAlpha(ch: string): boolean {
-  return (ch >= 'a' && ch <= 'z') || (ch >= 'A' && ch <= 'Z');
 }
