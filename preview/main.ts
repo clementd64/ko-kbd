@@ -1,7 +1,17 @@
 import './style.css';
 
-import { keydownListener } from '../src/listener.ts';
+import { Keyboard } from '../src/listener.ts';
 
-document.querySelector('#status')?.classList.add('enabled');
-(<HTMLTextAreaElement>document.querySelector('textarea'))
-    .addEventListener('keydown', keydownListener);
+const status = document.querySelector('#status')!;
+
+new Keyboard({
+    target: <HTMLTextAreaElement>document.querySelector('#input'),
+    enabled: true,
+    onEnable: (enabled) => {
+        if (enabled) {
+            status.classList.add('enabled');
+        } else {
+            status.classList.remove('enabled');
+        }
+    },
+});
