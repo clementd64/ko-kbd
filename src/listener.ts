@@ -2,7 +2,14 @@ import { isAlpha, isStateValid, SelectionState } from "./common.ts";
 import { append } from "./append.ts";
 import { remove } from "./remove.ts";
 
-function replace(el: HTMLTextAreaElement, value: string, selection: SelectionState) {
+export interface Element {
+    value: string;
+    selectionStart: number;
+    selectionEnd: number;
+    addEventListener: (type: "keydown", listener: (e: KeyboardEvent) => void) => void;
+}
+
+function replace(el: Element, value: string, selection: SelectionState) {
     const start = el.selectionStart;
 
     el.value =
@@ -31,7 +38,7 @@ export function keydownListener(e: KeyboardEvent) {
         return;
     }
 
-    const target = <HTMLTextAreaElement>e.target;
+    const target = e.target as unknown as Element;
     const state = target.value.slice(target.selectionStart, target.selectionEnd);
 
     // ignore if invalid state
@@ -61,4 +68,58 @@ export function keydownListener(e: KeyboardEvent) {
     }
 
     target.selectionStart = target.selectionEnd;
+}
+
+type KeyboardOptions = {
+    target: Element;
+    enabled?: boolean;
+    onEnable?: (enabled: boolean) => void;
+    toggleModeFilter?: (e: KeyboardEvent) => boolean;
+};
+
+export class Keyboard {
+    #enabled = false;
+    #onEnable: (enabled: boolean) => void;
+    #target: Element;
+
+    constructor({
+        target,
+        enabled = false,
+        onEnable = () => {},
+        toggleModeFilter = (e: KeyboardEvent) => e.altKey && e.code === "Space" && e.repeat === false,
+    }: KeyboardOptions) {
+        this.#onEnable = onEnable;
+        this.#target = target;
+
+        target.addEventListener("keydown", (e) => {
+            if (toggleModeFilter(e)) {
+                e.preventDefault();
+                this.enabled = !this.#enabled;
+                return;
+            }
+
+            if (this.#enabled) {
+                keydownListener(e);
+            }
+        });
+
+        // trigger onEnable only if enabled
+        if (enabled) {
+            this.enabled = enabled;
+        }
+    }
+
+    get enabled() {
+        return this.#enabled;
+    }
+
+    set enabled(value: boolean) {
+        // unselect state when disabling
+        if (value === false && isStateValid(this.#target.value.slice(this.#target.selectionStart, this.#target.selectionEnd))) {
+            this.#target.selectionStart = this.#target.selectionEnd;
+        }
+
+        this.#enabled = value;
+        this.#onEnable(value);
+    }
 }
