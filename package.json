@@ -1,13 +1,17 @@
 {
   "name": "ko-kbd",
-  "private": true,
   "version": "0.0.0",
   "type": "module",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    "import": "./dist/ko-kbd.js",
+    "require": "./dist/ko-kbd.umd.cjs"
+  },
   "scripts": {
     "dev": "vite",
     "test": "tsc && vitest run",
     "test:watch": "vitest watch",
-    "build": "tsc && vite build",
+    "build": "tsc && vite build && tsc --noEmit false --declaration --emitDeclarationOnly --outFile dist/index.d.ts --isolatedModules false",
     "preview:build": "tsc && vite build --mode preview",
     "preview:serve": "vite preview --mode preview"
   },

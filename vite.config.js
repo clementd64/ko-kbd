@@ -6,7 +6,7 @@ export default defineConfig(({ mode }) => {
       build: {
         lib: {
           entry: "index.ts",
-          formats: ["es"],
+          name: "ko-kbd",
         },
       },
     };
