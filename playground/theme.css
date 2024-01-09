@@ -1,0 +1,29 @@
+body {
+  background-color: var(--background-color);
+  color: var(--text-color);
+  font-family: sans-serif;
+  font-size: 1.2em;
+  height: 100vh;
+  margin: 0;
+  overflow: hidden;
+}
+
+:root {
+  --background-color: #ffffff;
+  --header-color: #f6f8fa;
+  --text-color: #1f2328;
+  --enabled-color: #2f81f7;
+  --enabled-text-color: #e6edf3;
+  --rounded-radius: 5px;
+  color-scheme: light;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background-color: #0d1117;
+    --header-color: #010409;
+    --text-color: #e6edf3;
+    --enabled-color: #0969da;
+    color-scheme: dark;
+  }
+}
