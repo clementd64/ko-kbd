@@ -54,6 +54,7 @@ export class HeaderBarElement extends LitElement {
       background-color: var(--header-color);
       display: grid;
       grid-template-columns: auto 1fr auto auto;
+      align-items: center;
     }
 
     .status {
