@@ -105,6 +105,7 @@ const REMOVE_TEST_CASES = [
   { state: '한', expected: '하', select: SelectionState.All },
   { state: '핡', expected: '할', select: SelectionState.All },
   { state: '항', expected: '한', select: SelectionState.All },
+  { state: '아', expected: '', select: SelectionState.All },
 ];
 
 describe('Remove', () => {

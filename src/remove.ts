@@ -1,5 +1,5 @@
 import { SelectionState, Result } from './common.ts';
-import { composeSyllable, decomposeSyllable, isSyllable, COMPOSED_FINAL } from './hangul.ts';
+import { composeSyllable, decomposeSyllable, isSyllable, COMPOSED_FINAL, NO_INITIAL } from './hangul.ts';
 
 export function remove(state: string): Result {
     // state can't have 2 syllables. second must be ascii or initial jamo.
@@ -24,7 +24,7 @@ export function remove(state: string): Result {
             }
         }
 
-        if (syllable.medial !== null) {
+        if (syllable.medial !== null && syllable.initial !== NO_INITIAL) {
             syllable.medial = null;
             return {
                 value: composeSyllable(syllable),
