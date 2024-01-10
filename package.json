@@ -12,10 +12,11 @@
     "test": "tsc && vitest run",
     "test:watch": "vitest watch",
     "build": "tsc && vite build && tsc --noEmit false --declaration --emitDeclarationOnly --outFile dist/index.d.ts --isolatedModules false",
-    "preview:build": "tsc && vite build --mode preview",
-    "preview:serve": "vite preview --mode preview"
+    "playground:build": "tsc && vite build --mode playground",
+    "playground:serve": "vite preview --mode playground"
   },
   "devDependencies": {
+    "lit": "^3.1.0",
     "typescript": "^5.3.3",
     "vite": "^5.0.10",
     "vitest": "^1.1.1"
