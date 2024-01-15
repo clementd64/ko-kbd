@@ -30,9 +30,9 @@ export const COMPOSED_FINAL = new Map<number, [number, number]>([
   [21, [4, 1]], // ㅇ
 ]);
 
-// Hangul are encoded as 0xAC00 + (initial * 588) + (medial * 21) + final
+// Hangul are encoded as 0xAC00 + (initial * 588) + (medial * 28) + final
 // with 0xAC00 the offset of the Hangul Syllable block
-// 21 the number of medial
+// 28 the number of finals
 // 588 = 21 * 28 the number of medial + final combinations
 
 export function decomposeSyllable(char: string): Syllable {
