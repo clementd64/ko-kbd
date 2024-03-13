@@ -16,7 +16,7 @@ function replace(el: Element, value: string, selection: SelectionState) {
         value +
         el.value.slice(el.selectionEnd);
 
-    el.selectionEnd = start + el.value.length;
+    el.selectionEnd = start + value.length;
 
     switch (selection) {
         case SelectionState.None:
