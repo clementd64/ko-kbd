@@ -39,11 +39,15 @@ export function keydownListener(e: KeyboardEvent) {
     }
 
     const target = e.target as unknown as Element;
-    const state = target.value.slice(target.selectionStart, target.selectionEnd);
+    let state = target.value.slice(target.selectionStart, target.selectionEnd);
 
-    // ignore if invalid state
     if (!isStateValid(state)) {
-        return;
+        // ignore if invalid state and not append event
+        if (!isAppendEvent(e)) {
+            return;
+        }
+        // process as replace
+        state = "";
     }
 
     // Keep current selection when selecting backward
@@ -58,7 +62,7 @@ export function keydownListener(e: KeyboardEvent) {
     }
 
     // input text
-    if (e.key.length === 1 && isAlpha(e.key)) {
+    if (isAppendEvent(e)) {
         e.preventDefault();
         const result = append(state, e.key);
         replace(target, result.value, result.select);
@@ -79,4 +83,8 @@ export function keydownListener(e: KeyboardEvent) {
     }
 
     target.selectionStart = target.selectionEnd;
+}
+
+function isAppendEvent(e: KeyboardEvent) {
+    return e.key.length === 1 && isAlpha(e.key);
 }
