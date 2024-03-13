@@ -6,6 +6,7 @@ export interface Element {
     value: string;
     selectionStart: number;
     selectionEnd: number;
+    setSelectionRange(start: number | null, end: number | null, direction?: "forward" | "backward" | "none"): void;
 }
 
 function replace(el: Element, value: string, selection: SelectionState) {
@@ -45,6 +46,17 @@ export function keydownListener(e: KeyboardEvent) {
         return;
     }
 
+    // Keep current selection when selecting backward
+    if (e.shiftKey && e.key === "ArrowLeft") {
+        target.setSelectionRange(target.selectionStart, target.selectionEnd, "backward");
+        return;
+    }
+
+    // do not unselect when unprintable character
+    if (e.key === "Shift" || e.key === "ArrowLeft" || e.key === "ArrowRight") {
+        return;
+    }
+
     // input text
     if (e.key.length === 1 && isAlpha(e.key)) {
         e.preventDefault();
@@ -53,7 +65,7 @@ export function keydownListener(e: KeyboardEvent) {
         return;
     }
 
-    // delete text. If state  is empty, use default behavior (delete left character)
+    // delete text. If state is empty, use default behavior (delete left character)
     if (e.code === "Backspace" && state.length > 0) {
         e.preventDefault();
         const result = remove(state);
